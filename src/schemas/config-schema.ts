@@ -14,7 +14,7 @@ export const WorktreeConfigSchema = z
       .string()
       .default("$BASE_PATH.worktree")
       .describe(
-        "Template for worktree directory names. Variables: $BASE_PATH, $WORKTREE_PATH, $BRANCH_NAME, $SOURCE_BRANCH"
+        "Base template for worktree directories. Relative paths use the repository parent; ~ and ~/... use the runtime home; native absolute paths retain their root (for example /tmp/worktrees or C:\\worktrees). Variables: $BASE_PATH, $WORKTREE_PATH, $BRANCH_NAME, $SOURCE_BRANCH"
       ),
     postCreateCmd: z
       .array(z.string())

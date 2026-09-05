@@ -127,10 +127,13 @@ Create a `.branchlet.json` file in your project root or configure global setting
 - **`worktreeCopyIgnores`**: Files/directories to exclude when copying (supports glob patterns)
   - Default: `["**/node_modules/**", "**/dist/**", "**/.git/**", "**/Thumbs.db", "**/.DS_Store"]`
 
-- **`worktreePathTemplate`**: Template for worktree directory names
+- **`worktreePathTemplate`**: Base template for worktree directories; Branchlet appends the generated worktree directory name once
   - Default: `"$BASE_PATH.worktree"`
   - Variables: `$BASE_PATH`, `$WORKTREE_PATH`, `$BRANCH_NAME`, `$SOURCE_BRANCH`
-  - Examples: `"worktrees/$BRANCH_NAME"`, `"$BASE_PATH-branches/$BRANCH_NAME"`
+  - Ordinary-relative templates retain their current behavior and resolve from the repository’s parent directory: `"worktrees/$BRANCH_NAME"`, `"$BASE_PATH-branches/$BRANCH_NAME"`
+  - `~` and `~/...` resolve from the runtime user’s home directory: `"~/worktrees/$BRANCH_NAME"`
+  - Native absolute paths retain their root: `"/tmp/worktrees"` on POSIX or `"C:\\worktrees"` on Windows
+  - Only the `~` and `~/...` home aliases expand. `~user/...`, `~~/...`, `~\\...`, `$HOME`, and `%USERPROFILE%` are ordinary template text; Branchlet does not interpolate environment variables.
 
 - **`postCreateCmd`**: Commands to run after creating a worktree. Runs in the new worktree directory.
   - Default: `[]`

@@ -1,4 +1,5 @@
-import { basename, dirname, join, resolve } from "node:path"
+import { homedir } from "node:os"
+import { basename, dirname, isAbsolute, join, resolve } from "node:path"
 import type { TemplateVariables } from "../types/index"
 
 export function resolveTemplate(template: string, variables: TemplateVariables): string {
@@ -38,7 +39,14 @@ export function getWorktreePath(
   }
 
   const resolvedTemplate = resolveTemplate(template, variables)
-  const worktreeBase = join(parentDir, resolvedTemplate)
+  const worktreeBase =
+    resolvedTemplate === "~"
+      ? homedir()
+      : resolvedTemplate.startsWith("~/")
+        ? join(homedir(), resolvedTemplate.slice(2))
+        : isAbsolute(resolvedTemplate)
+          ? resolvedTemplate
+          : join(parentDir, resolvedTemplate)
 
   return join(worktreeBase, directoryName)
 }

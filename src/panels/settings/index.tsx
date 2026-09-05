@@ -287,7 +287,7 @@ export function SettingsMenu({ worktreeService, onBack }: SettingsMenuProps) {
           </Box>
 
           <Box>
-            <Text color={COLORS.MUTED}>Template for worktree directory paths:</Text>
+            <Text color={COLORS.MUTED}>Base path for worktree directories:</Text>
           </Box>
 
           <Box marginLeft={2}>
@@ -300,7 +300,16 @@ export function SettingsMenu({ worktreeService, onBack }: SettingsMenuProps) {
               <Text color={COLORS.MUTED}>• $BASE_PATH - Repository name</Text>
               <Text color={COLORS.MUTED}>• $WORKTREE_PATH - Full worktree path</Text>
               <Text color={COLORS.MUTED}>• $BRANCH_NAME - New branch name</Text>
+              <Text color={COLORS.MUTED}>• $SOURCE_BRANCH - Source branch name</Text>
             </Box>
+          </Box>
+
+          <Box flexDirection="column" marginTop={1}>
+            <Text color={COLORS.INFO}>Path bases:</Text>
+            <Text color={COLORS.MUTED}>• Relative: worktrees/$BRANCH_NAME</Text>
+            <Text color={COLORS.MUTED}>• Home-relative: ~/worktrees/$BRANCH_NAME</Text>
+            <Text color={COLORS.MUTED}>• Absolute: /tmp/worktrees or C:\\worktrees</Text>
+            <Text color={COLORS.MUTED}>Only ~ and ~/… expand; shell variables do not.</Text>
           </Box>
 
           <Box marginTop={1}>

@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test"
+import { homedir } from "node:os"
+import { dirname, join } from "node:path"
 import {
   getRepositoryBaseName,
   getRepositoryRoot,
@@ -193,6 +195,63 @@ describe("path-utils", () => {
   })
 
   describe("getWorktreePath", () => {
+    test("uses a home-relative template as the worktree base", () => {
+      const result = getWorktreePath(
+        "/projects/branchlet",
+        "feature-worktree",
+        "~/worktrees/$BRANCH_NAME",
+        "feature/login"
+      )
+
+      expect(result).toBe(join(homedir(), "worktrees", "feature", "login", "feature-worktree"))
+      expect(getWorktreePath("/projects/branchlet", "feature-worktree", "~")).toBe(
+        join(homedir(), "feature-worktree")
+      )
+    })
+
+    test("uses a native absolute template as the worktree base", () => {
+      const template = join(process.cwd(), "shared-worktrees")
+
+      const result = getWorktreePath("/projects/branchlet", "feature-worktree", template)
+
+      expect(result).toBe(join(template, "feature-worktree"))
+    })
+
+    test("keeps ordinary-relative and parent-segment templates relative to the repository parent", () => {
+      const gitRoot = join(process.cwd(), "projects", "branchlet")
+      const parentDir = dirname(gitRoot)
+
+      expect(getWorktreePath(gitRoot, "feature-worktree", "worktrees")).toBe(
+        join(parentDir, "worktrees", "feature-worktree")
+      )
+      expect(getWorktreePath(gitRoot, "feature-worktree", "../shared-worktrees")).toBe(
+        join(parentDir, "../shared-worktrees", "feature-worktree")
+      )
+    })
+
+    test("keeps unsupported tilde forms as ordinary-relative templates", () => {
+      const gitRoot = join(process.cwd(), "projects", "branchlet")
+      const parentDir = dirname(gitRoot)
+      const unsupportedTemplates = ["~user/worktrees", "~~/worktrees", "~\\worktrees"]
+
+      for (const template of unsupportedTemplates) {
+        expect(getWorktreePath(gitRoot, "feature-worktree", template)).toBe(
+          join(parentDir, template, "feature-worktree")
+        )
+      }
+    })
+
+    if (process.platform === "win32") {
+      test("uses drive-rooted and UNC templates as worktree bases on Windows", () => {
+        expect(getWorktreePath("C:\\projects\\branchlet", "feature-worktree", "D:\\worktrees")).toBe(
+          join("D:\\worktrees", "feature-worktree")
+        )
+        expect(
+          getWorktreePath("C:\\projects\\branchlet", "feature-worktree", "\\\\server\\share\\worktrees")
+        ).toBe(join("\\\\server\\share\\worktrees", "feature-worktree"))
+      })
+    }
+
     test("should generate worktree path using template", () => {
       const gitRoot = "/Users/test/my-project"
       const directoryName = "feature-branch"
